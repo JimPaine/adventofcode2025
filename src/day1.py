@@ -2,8 +2,7 @@ import logging
 import os
 
 
-def decode_password(
-        combination_path: str) -> tuple[int, int]:
+def decode_password(combination_path: str) -> tuple[int, int]:
     pos = 50
     zeros = 0
     clicks = 0
