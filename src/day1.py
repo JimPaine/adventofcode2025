@@ -1,4 +1,5 @@
 import logging
+import os
 
 
 def decode_password(
@@ -32,3 +33,17 @@ def rotate(pos: int, moves: int, dir: str, clicks: int) -> tuple[int, int]:
             clicks += 1
 
     return pos, clicks
+
+
+def test_decode_password_example():
+    example_path = os.path.join(os.path.dirname(__file__), 'examples/day1')
+    zeros, clicks = decode_password(example_path)
+    assert zeros == 3
+    assert clicks == 6
+
+
+def test_decode_password():
+    input_path = os.path.join(os.path.dirname(__file__), 'inputs/day1')
+    zero_count, zero_clicks = decode_password(input_path)
+    assert zero_count == 1120
+    assert zero_clicks == 6554
