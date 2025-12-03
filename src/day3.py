@@ -1,50 +1,75 @@
-import logging
 import os
 import pytest
 
 
-def high_joltage(input_path: str) -> int:
+def high_joltage(input_path: str, batteries: int) -> int:
     joltage = 0
     with open(input_path, 'r') as file:
         for line in file:
-            joltage += process_bank(line)
+            joltage += process_bank(line, batteries)
     return joltage
 
 
-def process_bank(line: str) -> int:
-    largest_value = 0
-    largest_index = 0
+def process_bank(line: str, batteries: int) -> int:
+    idx = 0
+    joltage = ''
+
     line = line.rstrip('\n')
 
-    for i in range(0, len(line) - 1):
-        if int(line[i]) > largest_value:
-            largest_value = int(line[i])
-            largest_index = i
+    for b in range(batteries):
+        v, p = _get_next_largest(
+            line, idx, len(line) - (batteries - 1 - b))
 
-    next_largest = 0
+        joltage = f'{joltage}{v}'
+        idx = p + 1
 
-    for i in range(largest_index + 1, len(line)):
-        if int(line[i]) > next_largest:
-            next_largest = int(line[i])
-
-    return int(f'{largest_value}{next_largest}')
+    return int(joltage)
 
 
-@pytest.mark.parametrize("line, expected", [
-    ("123456", 56),
-    ("123456\n", 56),
+def _get_next_largest(
+        line: str, start_index: int, end_index: int) -> tuple[int, int]:
+    value = 0
+    index = 0
+
+    for i in range(start_index, end_index):
+        if int(line[i]) > value:
+            value = int(line[i])
+            index = i
+
+    return value, index
+
+
+@pytest.mark.parametrize("line, batteries, expected", [
+    ("123456", 2, 56),
+    ("123456\n", 2, 56),
+    ("987654321111111", 2, 98),
+    ("811111111111119", 2, 89),
+    ("234234234234278", 2, 78),
+    ("818181911112111", 2, 92),
 ])
-def test_process_bank(line: str, expected: int):
-    assert process_bank(line) == expected
+def test_process_bank(line: str, batteries: int, expected: int):
+    assert process_bank(line, batteries) == expected
 
 
 def test_high_joltage_example():
     example_path = os.path.join(os.path.dirname(__file__), 'examples/day3')
-    joltage = high_joltage(example_path)
+    joltage = high_joltage(example_path, 2)
     assert joltage == 357
+
+
+def test_high_joltage_part2_example():
+    example_path = os.path.join(os.path.dirname(__file__), 'examples/day3')
+    joltage = high_joltage(example_path, 12)
+    assert joltage == 3121910778619
 
 
 def test_high_joltage_input():
     input_path = os.path.join(os.path.dirname(__file__), 'inputs/day3')
-    joltage = high_joltage(input_path)
+    joltage = high_joltage(input_path, 2)
     assert joltage == 17493
+
+
+def test_high_joltage_part2_input():
+    input_path = os.path.join(os.path.dirname(__file__), 'inputs/day3')
+    joltage = high_joltage(input_path, 12)
+    assert joltage == 173685428989126
