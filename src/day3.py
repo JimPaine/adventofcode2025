@@ -47,4 +47,4 @@ def test_high_joltage_example():
 def test_high_joltage_input():
     input_path = os.path.join(os.path.dirname(__file__), 'inputs/day3')
     joltage = high_joltage(input_path)
-    assert joltage == 357
+    assert joltage == 17493
