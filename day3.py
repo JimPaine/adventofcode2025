@@ -6,15 +6,13 @@ def high_joltage(input_path: str, batteries: int) -> int:
     joltage = 0
     with open(input_path, 'r') as file:
         for line in file:
-            joltage += process_bank(line, batteries)
+            joltage += process_bank(line.rstrip('\n'), batteries)
     return joltage
 
 
 def process_bank(line: str, batteries: int) -> int:
     idx = 0
     joltage = ''
-
-    line = line.rstrip('\n')
 
     for b in range(batteries):
         v, p = _get_next_largest(line, idx, len(line) - (batteries - 1 - b))
@@ -37,8 +35,6 @@ def _get_next_largest(line: str, s: int, e: int) -> tuple[int, int]:
 
 
 @pytest.mark.parametrize("line, batteries, expected", [
-    ("123456", 2, 56),
-    ("123456\n", 2, 56),
     ("987654321111111", 2, 98),
     ("811111111111119", 2, 89),
     ("234234234234278", 2, 78),
