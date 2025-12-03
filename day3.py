@@ -17,21 +17,18 @@ def process_bank(line: str, batteries: int) -> int:
     line = line.rstrip('\n')
 
     for b in range(batteries):
-        v, p = _get_next_largest(
-            line, idx, len(line) - (batteries - 1 - b))
-
+        v, p = _get_next_largest(line, idx, len(line) - (batteries - 1 - b))
         joltage = f'{joltage}{v}'
         idx = p + 1
 
     return int(joltage)
 
 
-def _get_next_largest(
-        line: str, start_index: int, end_index: int) -> tuple[int, int]:
+def _get_next_largest(line: str, s: int, e: int) -> tuple[int, int]:
     value = 0
     index = 0
 
-    for i in range(start_index, end_index):
+    for i in range(s, e):
         if int(line[i]) > value:
             value = int(line[i])
             index = i
