@@ -1,5 +1,6 @@
 import logging
 import os
+import pytest
 
 
 def decode_password(combination_path: str) -> tuple[int, int]:
@@ -28,15 +29,12 @@ def rotate(pos: int, moves: int, dir: str, clicks: int) -> tuple[int, int]:
     return pos, clicks
 
 
-def test_decode_password_example():
-    example_path = os.path.join(os.path.dirname(__file__), 'examples/day1')
-    zeros, clicks = decode_password(example_path)
-    assert zeros == 3
-    assert clicks == 6
-
-
-def test_decode_password():
-    input_path = os.path.join(os.path.dirname(__file__), 'inputs/day1')
-    zero_count, zero_clicks = decode_password(input_path)
-    assert zero_count == 1120
-    assert zero_clicks == 6554
+@pytest.mark.parametrize("path, expected_zeros, expected_clicks", [
+    ("examples/day1", 3, 6),
+    ("inputs/day1", 1120, 6554),
+])
+def test_decode_password(path: str, expected_zeros: int, expected_clicks: int):
+    absolute_path = os.path.join(os.path.dirname(__file__), path)
+    zeros, clicks = decode_password(absolute_path)
+    assert zeros == expected_zeros
+    assert clicks == expected_clicks

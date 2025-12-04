@@ -1,5 +1,6 @@
 import copy
 import os
+import pytest
 
 
 def _read_paper_layout(input_path: str) -> list:
@@ -45,25 +46,13 @@ def _get_slice(i: int, n: int) -> slice:
     return slice(i - 1 if i > 0 else 0, i + 2 if i < n - 1 else n)
 
 
-def test_optimize_forklift_example():
-    example_path = os.path.join(os.path.dirname(__file__), 'examples/day4')
-    roll_count = optimize_forklift(example_path)
-    assert roll_count == 13
-
-
-def test_optimize_forklift_part2_example():
-    example_path = os.path.join(os.path.dirname(__file__), 'examples/day4')
-    roll_count = optimize_forklift(example_path, part2=True)
-    assert roll_count == 43
-
-
-def test_optimize_forklift_input():
-    input_path = os.path.join(os.path.dirname(__file__), 'inputs/day4')
-    roll_count = optimize_forklift(input_path)
-    assert roll_count == 1356
-
-
-def test_optimize_forklift_part2_input():
-    input_path = os.path.join(os.path.dirname(__file__), 'inputs/day4')
-    roll_count = optimize_forklift(input_path, part2=True)
-    assert roll_count == 8713
+@pytest.mark.parametrize("path, part2, expected", [
+    ("examples/day4", False, 13),
+    ("examples/day4", True, 43),
+    ("inputs/day4", False, 1356),
+    ("inputs/day4", True, 8713),
+])
+def test_optimize_forklift_example(path: str, part2: bool, expected: int):
+    absolute_path = os.path.join(os.path.dirname(__file__), path)
+    roll_count = optimize_forklift(absolute_path, part2)
+    assert roll_count == expected
