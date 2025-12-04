@@ -31,23 +31,14 @@ def optimize_forklift(input_path: str, part2=False) -> int:
 
                     area = layout[y_slice]
                     area = [row[x_slice] for row in area]
-                    if _check_surrounding_area(area):
+                    if sum(o.count('@') for o in area) < 5:
                         temp_count += 1
                         temp_layout[y][x] = '.'
+
         roll_count += temp_count
         flag = False if temp_count == 0 or not part2 else True
 
     return roll_count
-
-
-def _check_surrounding_area(layout: list) -> bool:
-    count = 0
-    for y in range(len(layout)):
-        for x in range(len(layout[y])):
-            if layout[y][x] == '@':
-                count += 1
-
-    return count < 5  # including the center '@'
 
 
 def test_optimize_forklift_example():
