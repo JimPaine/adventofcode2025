@@ -26,8 +26,8 @@ def optimize_forklift(input_path: str, part2=False) -> int:
         for x in range(0, w):
             for y in range(0, h):
                 if layout[y][x] == '@':
-                    x_slice = slice(x - 1 if x > 0 else 0, x + 2 if x < w - 1 else w)
-                    y_slice = slice(y - 1 if y > 0 else 0, y + 2 if y < h - 1 else h)
+                    x_slice = _get_slice(x, w)
+                    y_slice = _get_slice(y, h)
 
                     area = layout[y_slice]
                     area = [row[x_slice] for row in area]
@@ -39,6 +39,10 @@ def optimize_forklift(input_path: str, part2=False) -> int:
         flag = False if temp_count == 0 or not part2 else True
 
     return roll_count
+
+
+def _get_slice(i: int, n: int) -> slice:
+    return slice(i - 1 if i > 0 else 0, i + 2 if i < n - 1 else n)
 
 
 def test_optimize_forklift_example():
