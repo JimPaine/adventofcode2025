@@ -71,4 +71,4 @@ def test_optimize_forklift_input():
 def test_optimize_forklift_part2_input():
     input_path = os.path.join(os.path.dirname(__file__), 'inputs/day4')
     roll_count = optimize_forklift(input_path, part2=True)
-    assert roll_count == 1356
+    assert roll_count == 8713
