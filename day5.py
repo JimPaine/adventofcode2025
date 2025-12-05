@@ -1,4 +1,3 @@
-import logging
 import os
 import pytest
 
@@ -14,48 +13,52 @@ def _read_paper_layout(input_path: str) -> tuple[list, list]:
                 flag = False
                 continue
             if flag:
-                fresh.append(line.rstrip('\n'))
+                low, high = line.rstrip('\n').split('-')
+                fresh.append((int(low), int(high)))
             else:
-                items.append(line.rstrip('\n'))
+                items.append(int(line.rstrip('\n')))
 
     return fresh, items
 
 
 def get_fresh(path: str, part2: bool) -> int:
     fresh, items = _read_paper_layout(path)
+    return _part1(items, fresh) if not part2 else _part2(fresh)
+
+
+def _part1(item: list, fresh: list) -> int:
     fresh_items = []
-    fresh_ranges = []
-    usable_ranges = []
 
-    for i in items:
-        for f in fresh:
-            min = int(f.split('-')[0])
-            max = int(f.split('-')[1])
-            if int(i) >= min and int(i) <= max:
-                fresh_items.append(int(i))
-                if f not in usable_ranges:
-                    usable_ranges.append(f)
-                if not part2:
-                    break
+    for i in item:
+        for (l, h) in fresh:
+            if int(l) <= i <= int(h):
+                fresh_items.append(i)
+                break
 
-    if part2:
-        for u in usable_ranges:
-            fresh_ranges.sort()
-            logging.warn(f'process {u}')
-            min = int(u.split('-')[0])
-            max = int(u.split('-')[1]) + 1
-            for x in range(min, max):
-                if x not in fresh_ranges:
-                    fresh_ranges.append(x)
+    return len(fresh_items)
 
-    return len(fresh_items) if not part2 else len(fresh_ranges)
+
+def _part2(fresh: list) -> int:
+    fresh.sort()
+    low, high = fresh[0]
+    count = 0
+    for l, h, in fresh[1:]:
+        if l > high + 1:
+            count += high - low + 1
+            low, high = l, h
+        else:
+            if h > high:
+                high = h
+
+    count += high - low + 1
+    return count
 
 
 @pytest.mark.parametrize("path, part2, expected", [
     ("examples/day5", False, 3),
     ("examples/day5", True, 14),
     ("inputs/day5", False, 611),
-    ("inputs/day5", True, 1),
+    ("inputs/day5", True, 345995423801866),
 ])
 def test_day5(path: str, part2: bool, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
