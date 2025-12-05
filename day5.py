@@ -2,12 +2,12 @@ import os
 import pytest
 
 
-def _read_paper_layout(input_path: str) -> tuple[list, list]:
+def _read_input(path: str) -> tuple[list, list]:
     fresh = []
     items = []
     flag = True
 
-    with open(input_path, 'r') as file:
+    with open(path, 'r') as file:
         for line in file:
             if line == '\n':
                 flag = False
@@ -22,7 +22,7 @@ def _read_paper_layout(input_path: str) -> tuple[list, list]:
 
 
 def get_fresh(path: str, part2: bool) -> int:
-    fresh, items = _read_paper_layout(path)
+    fresh, items = _read_input(path)
     return _part1(items, fresh) if not part2 else _part2(fresh)
 
 
