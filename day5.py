@@ -43,10 +43,14 @@ def _part2(fresh: list) -> int:
     low, high = fresh[0]
     count = 0
     for l, h, in fresh[1:]:
+        # if the start of the current range if higher than the previous one
+        # we can count the numbers in this range as it doesn't overlap.
         if l > high + 1:
             count += high - low + 1
             low, high = l, h
         else:
+            # if the end of the current range if higher than the previous one
+            # we can merge them, so create a new range that uses the new high.
             if h > high:
                 high = h
 
@@ -64,3 +68,11 @@ def test_day5(path: str, part2: bool, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     roll_count = get_fresh(absolute_path, part2)
     assert roll_count == expected
+
+
+@pytest.mark.parametrize("ranges, expected", [
+    ([(1, 9), (2, 10)], 10),
+    ([(10, 14), (12, 18)], 9)
+])
+def test_part2_overlaps(ranges: list[tuple[int,int]], expected: int):
+    assert(_part2(ranges)) == expected
