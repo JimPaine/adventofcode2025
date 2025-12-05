@@ -72,7 +72,7 @@ def test_day5(path: str, part2: bool, expected: int):
 
 @pytest.mark.parametrize("ranges, expected", [
     ([(1, 9), (2, 10)], 10),
-    ([(10, 14), (12, 18)], 9)
+    ([(10, 14), (12, 18), (16, 20)], 11)
 ])
 def test_part2_overlaps(ranges: list[tuple[int,int]], expected: int):
     assert(_part2(ranges)) == expected
