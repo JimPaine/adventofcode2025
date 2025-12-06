@@ -38,16 +38,14 @@ def part2(path: str) -> int:
     sub_total = 0
     op = ''
     for y in range(len(arr)):
-       
-        n_str = ''.join(arr[y][0:len(arr[y]) - 1]).strip()
         n = 0
-        if n_str == '':
+        if (n_str := ''.join(arr[y][0:len(arr[y]) - 1]).strip()) != '':
+            n = int(n_str)
+        else:
             total += sub_total
             sub_total = 0
             op = ''
             continue
-        else:
-            n = int(n_str)
 
         if op == '':
             op = arr[y][len(arr[y]) - 1]
