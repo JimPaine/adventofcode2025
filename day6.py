@@ -1,18 +1,14 @@
 import os
 import pytest
+import numpy as np
 
 
-def _read_input(path: str) -> list:
+def part1(path: str) -> int:
     lines = []
     with open(path, 'r') as file:
         for line in file:
             lines.append(line.rstrip('\n').split())
 
-    return lines
-
-
-def maths(path: str, part2: bool) -> int:
-    lines = _read_input(path)
     problem_count = len(lines[0])
     op_pos = len(lines) - 1
     total = 0
@@ -30,14 +26,57 @@ def maths(path: str, part2: bool) -> int:
     return total
 
 
+def part2(path: str) -> int:
+    lines = []
+    with open(path, 'r') as file:
+        for line in file:
+            lines.append(line.rstrip('\n'))
 
-@pytest.mark.parametrize("path, part2, expected", [
-    ("examples/day6", False, 4277556),
-    ("examples/day6", True, 3263827),
-    ("inputs/day6", False, 4878670269096),
-    # ("inputs/day6", True, 0),
+    total = 0
+    arr = list(zip(*lines))
+
+    sub_total = 0
+    op = ''
+    for y in range(len(arr)):
+       
+        n_str = ''.join(arr[y][0:len(arr[y]) - 1]).strip()
+        n = 0
+        if n_str == '':
+            total += sub_total
+            sub_total = 0
+            op = ''
+            continue
+        else:
+            n = int(n_str)
+
+        if op == '':
+            op = arr[y][len(arr[y]) - 1]
+
+        if op == '*':
+            if sub_total == 0:
+                sub_total = 1
+            sub_total *= n
+        else:
+            sub_total += n
+
+    return total + sub_total
+
+
+@pytest.mark.parametrize("path, expected", [
+    ("examples/day6", 4277556),
+    ("inputs/day6", 4878670269096),
 ])
-def test_optimize_forklift_example(path: str, part2: bool, expected: int):
+def test_optimize_forklift_part1(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
-    result = maths(absolute_path, part2)
+    result = part1(absolute_path)
+    assert result == expected
+
+
+@pytest.mark.parametrize("path, expected", [
+    ("examples/day6", 3263827),
+    ("inputs/day6", 8674740488592),
+])
+def test_optimize_forklift_part2(path: str, expected: int):
+    absolute_path = os.path.join(os.path.dirname(__file__), path)
+    result = part2(absolute_path)
     assert result == expected
