@@ -1,4 +1,3 @@
-import logging
 import os
 import pytest
 
@@ -7,8 +6,6 @@ def decode_password(combination_path: str) -> tuple[int, int]:
     pos = 50
     zeros = 0
     clicks = 0
-
-    logging.info("The dial starts by pointing at 50.")
 
     with open(combination_path, 'r') as file:
         for line in file:
