@@ -15,17 +15,13 @@ def _read(path: str) -> list:
 def fire_beam(path: str) -> tuple[int, int]:
     grid = _read(path)
 
-    beams = []
     w = len(grid[0])
+    beams = [ grid[0].index('S') ]
     paths = np.zeros(w, dtype=int)
-
-    for i in range(len(grid[0])):
-        if grid[0][i] == 'S':
-            beams = [i]
 
     splits = 0
     paths[beams[0]] = 1
-    for i in range(1, len(grid)):
+    for i in range(1, w):
         temp_beams = []
         temp_paths = np.zeros(w, dtype=int)
 
