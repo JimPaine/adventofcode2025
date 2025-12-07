@@ -1,6 +1,6 @@
-import copy
 import os
 import pytest
+import numpy as np
 
 
 def _read(path: str) -> list:
@@ -12,35 +12,46 @@ def _read(path: str) -> list:
     return rows
 
 
-def fire_beam(path: str, part2: bool) -> int:
+def fire_beam(path: str) -> tuple[int, int]:
     grid = _read(path)
 
     beams = []
+    w = len(grid[0])
+    paths = np.zeros(w, dtype=int)
 
     for i in range(len(grid[0])):
         if grid[0][i] == 'S':
             beams = [i]
 
     splits = 0
+    paths[beams[0]] = 1
     for i in range(1, len(grid)):
         temp_beams = []
+        temp_paths = np.zeros(w, dtype=int)
+
         for b in beams:
             if grid[i][b] == '^':
                 temp_beams.extend([b - 1, b + 1])
+                temp_paths[b-1] += paths[b]
+                temp_paths[b+1] += paths[b]
+
                 splits +=1
             else: 
                 temp_beams.append(b)
+                temp_paths[b] += paths[b]
 
         beams = list(set(temp_beams)) if len(temp_beams) > 0 else beams
+        paths = temp_paths
 
-    return splits
+    return splits, np.sum(paths)
 
 
-@pytest.mark.parametrize("path, part2, expected", [
-    ("examples/day7", False, 21),
-    ("inputs/day7", False, 1640)
+@pytest.mark.parametrize("path, splits_expected, paths_expected", [
+    ("examples/day7", 21, 40),
+    ("inputs/day7", 1640, 40999072541589)
 ])
-def test_optimize_forklift_part1(path: str, part2: bool, expected: int):
+def test_optimize_forklift_part1(path: str, splits_expected: int, paths_expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
-    result = fire_beam(absolute_path, part2)
-    assert result == expected
+    splits, paths = fire_beam(absolute_path)
+    assert splits == splits_expected
+    assert paths == paths_expected
