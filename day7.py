@@ -36,7 +36,7 @@ def fire_beam(path: str) -> tuple[int, int]:
                 temp_beams.append(b)
                 temp_paths[b] += paths[b]
 
-        beams = list(set(temp_beams)) if len(temp_beams) > 0 else beams
+        beams = list(set(temp_beams))
         paths = temp_paths
 
     return splits, np.sum(paths)
@@ -46,7 +46,7 @@ def fire_beam(path: str) -> tuple[int, int]:
     ("examples/day7", 21, 40),
     ("inputs/day7", 1640, 40999072541589)
 ])
-def test_optimize_forklift_part1(path: str, splits_expected: int, paths_expected: int):
+def test_fire_beam(path: str, splits_expected: int, paths_expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     splits, paths = fire_beam(absolute_path)
     assert splits == splits_expected
