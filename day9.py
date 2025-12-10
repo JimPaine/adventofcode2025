@@ -2,7 +2,8 @@ import os
 import pytest
 import itertools
 import numpy as np
-from shapely.geometry import Point, Polygon
+from shapely import make_valid
+from shapely.geometry import Polygon
 
 
 def _read(path: str) -> list:
@@ -32,19 +33,20 @@ def map_floor(path: str) -> tuple[int, int]:
     poly = Polygon(points)
     for i in range(len(sorted) - 1, -1, -1):
         p1, p2, d = sorted[i]
-
-        if poly.covers(Point(p2[0], p1[1])) and poly.covers(Point(p1[0], p2[1])):
+        coords = [(p1[0], p1[1]), (p2[0], p2[1]),(p2[0], p1[1]), (p1[0], p2[1])]
+        p = Polygon(coords)
+        p.buffer(0)
+        valid_p = make_valid(p)
+        if poly.covers(valid_p):
             max_tiles = d
             break 
             
     _, _, d = sorted[-1:][0]
     return d, max_tiles
 
-# 4611186884
-# 4629483216
 @pytest.mark.parametrize("path, part1, part2", [
     ("examples/day9", 50, 24),
-    ("inputs/day9", 4748769124, 0),
+    ("inputs/day9", 4748769124, 1525991432),
 ])
 def test_measure(path: str, part1: int, part2: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
