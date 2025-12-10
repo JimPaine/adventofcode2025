@@ -1,0 +1,4 @@
+## The following requirements were added by pip freeze:
+numpy==2.3.5
+pytest==9.0.2
+shapely==2.1.2
