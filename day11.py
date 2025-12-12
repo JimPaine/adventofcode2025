@@ -1,6 +1,5 @@
 
 import os
-import re
 import pytest
 import numpy as np
 
@@ -8,12 +7,11 @@ class Map:
     def __init__(self, raw):
         self.nodes = np.array([])
         self._parse(raw)
-        with open('test.out', 'w', encoding='UTF-8') as file:
-            file.write('# Test output\n')
+
 
     def walk(self, start, end) -> int:
         s = [n for n in self.nodes if n.name == start][0]
-        paths = s.walk(end, start)
+        paths = s.walk(end)
         return paths
 
 
@@ -49,22 +47,23 @@ class Node:
     def __init__(self, name, children = None):
         self.name = name
         self.children = children if children != None else []
-
+        self.exits = 0
 
     def add_children(self, children: list):
         self.children = np.append(self.children, children)
 
 
-    def walk(self, end, path: str) -> int:
+    def walk(self, end) -> int:
         if self.name == end:
-            with open('test.out', 'a', encoding='UTF-8') as file:
-                file.write(f'{path}\n')
             return 1
 
-        exits = 0
-        for c in self.children:
-            exits += c.walk(end, f'{path},{c.name}')
-        return exits
+        if self.exits != 0:
+            return self.exits
+
+        for i, c in enumerate(self.children):
+            self.exits += c.walk(end)
+
+        return self.exits
 
 
 def _read(path: str) -> list:
@@ -96,13 +95,6 @@ def test_measure_part2(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    _ = map.walk('svr', 'out')
-    count = 0
-    pattern = r'^.*(fft|dac).*(fft|dac).*$'
-    with open('test.out', 'r') as file:
-        for line in file:
-            match = re.match(pattern, line.rstrip('\n'))
-            if match:
-                count += 1
+    result = map.walk('svr', 'out')
 
-    assert count == expected
+    assert result == expected
