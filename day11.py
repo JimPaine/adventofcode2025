@@ -2,6 +2,7 @@
 import os
 import pytest
 import numpy as np
+import asyncio
 
 class Map:
     def __init__(self, raw):
@@ -9,9 +10,9 @@ class Map:
         self._parse(raw)
 
 
-    def walk(self, start, end, visited_dac = True, visited_fft = True) -> int:
+    async def walk(self, start, end, visited_dac = True, visited_fft = True) -> int:
         s = [n for n in self.nodes if n.name == start][0]
-        return s.walk(end, visited_dac, visited_fft)
+        return await s.walk(end, visited_dac, visited_fft)
 
 
     def _parse(self, raw):
@@ -74,7 +75,7 @@ class Node:
             p.set_fft()
 
 
-    def walk(self, end, visited_dac = False, visited_fft = False) -> int:
+    async def walk(self, end, visited_dac = False, visited_fft = False) -> int:
         if self.name == end and visited_dac and visited_fft:
             return 1
         elif self.name == end and end == 'dac':
@@ -91,18 +92,18 @@ class Node:
         # else: 
         #     self.exits = 0
 
-        exits = 0
+        tasks = []
         for c in self.children:
             if self.visits_dac and self.visits_fft:
-                exits += c.walk(end, dac, fft)
+                tasks.append(c.walk(end, dac, fft))
             elif visited_dac and visited_fft:
-                exits += c.walk(end, dac, fft)
+                tasks.append(c.walk(end, dac, fft))
             elif self.visits_dac and visited_fft:
-                exits += c.walk(end, dac, fft)
+                tasks.append(c.walk(end, dac, fft))
             elif visited_dac and self.visits_fft:
-                exits += c.walk(end, dac, fft)
-
-        return exits
+                tasks.append(c.walk(end, dac, fft))
+        
+        return np.sum(await asyncio.gather(*tasks))
 
 def _read(path: str) -> list:
     rows = []
@@ -113,32 +114,34 @@ def _read(path: str) -> list:
     return rows
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize("path, expected", [
     ("examples/day11", 5),
     ("inputs/day11", 652),
 ])
-def test_measure_part1(path: str, expected: int):
+async def test_measure_part1(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    paths = map.walk('you', 'out')
+    paths = await map.walk('you', 'out')
     assert paths == expected
 
 
+@pytest.mark.asyncio
 @pytest.mark.parametrize("path, expected", [
     ("examples/day11_2", 2),
     ("inputs/day11", 652),
 ])
-def test_measure_part2(path: str, expected: int):
+async def test_measure_part2(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
     # result = map.walk('svr', 'out', False, False) 
-    c = map.walk('dac', 'out', True, True)
-    b = map.walk('fft', 'dac')
-    a = map.walk('svr', 'fft')
-    z = map.walk('fft', 'out', True, True)
-    y = map.walk('dac', 'fft') 
-    x = map.walk('svr', 'dac')
+    c = await map.walk('dac', 'out', True, True)
+    b = await map.walk('fft', 'dac')
+    a = await map.walk('svr', 'fft')
+    z = await map.walk('fft', 'out', True, True)
+    y = await map.walk('dac', 'fft') 
+    x = await map.walk('svr', 'dac')
 
     assert (a * b * c) + (x * y * z) == expected
