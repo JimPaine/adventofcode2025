@@ -123,7 +123,7 @@ async def test_measure_part1(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    paths = await map.walk('you', 'out')
+    paths = await map.walk('you', 'out', True, True)
     assert paths == expected
 
 
