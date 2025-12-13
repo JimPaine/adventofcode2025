@@ -9,10 +9,9 @@ class Map:
         self._parse(raw)
 
 
-    def walk(self, start, end) -> int:
+    def walk(self, start, end, visited_dac = True, visited_fft = True) -> int:
         s = [n for n in self.nodes if n.name == start][0]
-        paths = s.walk(end)
-        return paths
+        return s.walk(end, visited_dac, visited_fft)
 
 
     def _parse(self, raw):
@@ -48,23 +47,62 @@ class Node:
         self.name = name
         self.children = children if children != None else []
         self.exits = 0
+        self.parents = []
+        self.visits_dac = False
+        self.visits_fft = False
+    
 
     def add_children(self, children: list):
         self.children = np.append(self.children, children)
+        for c in children:
+            if len([p for p in c.parents if p.name == self.name]) == 0:
+                c.parents.append(self)
+            if c.name == 'dac':
+                c.set_dac()
+            elif c.name == 'fft':
+                c.set_fft()
+
+    def set_dac(self):
+        self.visits_dac = True
+        for p in self.parents:
+            p.set_dac()
 
 
-    def walk(self, end) -> int:
-        if self.name == end:
+    def set_fft(self):
+        self.visits_fft = True
+        for p in self.parents:
+            p.set_fft()
+
+
+    def walk(self, end, visited_dac = False, visited_fft = False) -> int:
+        if self.name == end and visited_dac and visited_fft:
             return 1
+        elif self.name == end and end == 'dac':
+            return 1
+        elif self.name == end and end == 'fft':
+            return 1
+        elif self.name == end:
+            return 0
 
-        if self.exits != 0:
-            return self.exits
+        dac = True if self.name == 'dac' else visited_dac
+        fft = True if self.name == 'fft' else visited_fft
+        # if self.exits != 0 and visited_dac and visited_fft:
+        #     return self.exits
+        # else: 
+        #     self.exits = 0
 
-        for i, c in enumerate(self.children):
-            self.exits += c.walk(end)
+        exits = 0
+        for c in self.children:
+            if self.visits_dac and self.visits_fft:
+                exits += c.walk(end, dac, fft)
+            elif visited_dac and visited_fft:
+                exits += c.walk(end, dac, fft)
+            elif self.visits_dac and visited_fft:
+                exits += c.walk(end, dac, fft)
+            elif visited_dac and self.visits_fft:
+                exits += c.walk(end, dac, fft)
 
-        return self.exits
-
+        return exits
 
 def _read(path: str) -> list:
     rows = []
@@ -95,6 +133,12 @@ def test_measure_part2(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    result = map.walk('svr', 'out')
+    # result = map.walk('svr', 'out', False, False) 
+    c = map.walk('dac', 'out', True, True)
+    b = map.walk('fft', 'dac')
+    a = map.walk('svr', 'fft')
+    z = map.walk('fft', 'out', True, True)
+    y = map.walk('dac', 'fft') 
+    x = map.walk('svr', 'dac')
 
-    assert result == expected
+    assert (a * b * c) + (x * y * z) == expected
