@@ -90,24 +90,21 @@ def test_measure_part1(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    paths = map.walk('you', 'out', True, True)
+    paths = map.walk('you', 'out')
     assert paths == expected
 
 
 @pytest.mark.parametrize("path, expected", [
     ("examples/day11_2", 2),
-    ("inputs/day11", 652),
+    ("inputs/day11", 362956369749210),
 ])
 def test_measure_part2(path: str, expected: int):
     absolute_path = os.path.join(os.path.dirname(__file__), path)
     raw = _read(absolute_path)
     map = Map(raw)
-    c = map.walk('dac', 'out')
-    b = map.walk('fft', 'dac')
-    a = map.walk('svr', 'fft')
-    z = map.walk('fft', 'out')
-    y = map.walk('dac', 'fft') 
-    x = map.walk('svr', 'dac')
 
-    result = (a * b * c) + (x * y * z)
+    svr_fft_dac_out = map.walk('svr', 'fft') * map.walk('fft', 'dac') * map.walk('dac', 'out')
+    svr_dac_fft_out = map.walk('svr', 'dac') * map.walk('dac', 'fft') * map.walk('fft', 'out')
+
+    result = svr_fft_dac_out + svr_dac_fft_out
     assert result == expected
