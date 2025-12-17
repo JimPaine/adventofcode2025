@@ -12,8 +12,8 @@ class Machine:
 
     def _parse(self, raw: str):
         temp = raw.split(' ')
-        self._target_state = np.array([False if s == '.' else True for s in temp[0][1:-1]])
-        self.indicator_lights = np.array([False for _ in range(len(self._target_state))])
+        self._target_state = np.array([0 if s == '.' else 1 for s in temp[0][1:-1]])
+        self.indicator_lights = np.zeros(len(self._target_state), dtype=int)
 
         raw_buttons = [s[1:-1].split(',') for s in temp[1:-1]]
         self._buttons = [Button(len(self._target_state), b) for b in raw_buttons]
@@ -57,9 +57,9 @@ class Button:
 
 
     def _configure_button(self, size: int, switches: list):
-        button = [False for _ in range(size)]
+        button = np.zeros(size, dtype=int)
         for s in switches:
-            button[int(s)] = True # can I use 0s and 1s and still do bit ops
+            button[int(s)] = 1
         self._button = button
 
 
