@@ -3,8 +3,10 @@ import pytest
 import numpy as np
 from collections import deque
 
+MachineState = np.ndarray[tuple[int], np.dtype[np.signedinteger]]
+
 class Machine:
-    
+
     def __init__(self, raw: str):
         self._parse(raw)
         return None
@@ -12,26 +14,26 @@ class Machine:
 
     def _parse(self, raw: str):
         temp = raw.split(' ')
-        self._target_state = np.array([0 if s == '.' else 1 for s in temp[0][1:-1]])
-        self._target_joltage = np.array([int(j) for j in temp[-1:][0][1:-1].split(',')])
+        self._target_state = np.array([0 if s == '.' else 1 for s in temp[0][1:-1]], dtype='int')
+        self._target_joltage = np.array([int(j) for j in temp[-1:][0][1:-1].split(',')], dtype='int')
 
         raw_buttons = [s[1:-1].split(',') for s in temp[1:-1]]
         self._buttons = [Button(len(self._target_state), b) for b in raw_buttons]
 
 
-    def _key(self, array: np.array) -> tuple:
-        return (array.dtype.str, array.shape, f'{array}')
+    def _key(self, array: MachineState) -> str:
+        return f'{array}'
 
 
     def initialize(self) -> int:
-        return self._walk(np.zeros(len(self._target_state), dtype=int), self._target_state)
+        return self._walk(np.zeros(len(self._target_state), dtype='int'), self._target_state)
 
 
     def configure_joltage(self) -> int:
-        return self._walk(np.zeros(len(self._target_joltage), dtype=int), self._target_joltage, False)
+        return self._walk(np.zeros(len(self._target_joltage), dtype='int'), self._target_joltage, False)
 
 
-    def _walk(self, verticies: list, target: list, toggle=True) -> int:
+    def _walk(self, verticies: MachineState, target: MachineState, toggle=True) -> int:
         queue = deque([verticies])
         start_key = self._key(verticies)
         visited = {start_key}
@@ -61,27 +63,27 @@ class Machine:
 
 class Button:
 
-    def __init__(self, size: int, raw: str):
+    def __init__(self, size: int, raw: list[str]):
         self._configure_button(size, raw)
         self.known_states = {}
 
 
-    def _configure_button(self, size: int, switches: list):
-        button = np.zeros(size, dtype=int)
+    def _configure_button(self, size: int, switches: list[str]):
+        button = np.zeros(size, dtype='int')
         for s in switches:
             button[int(s)] = 1
         self._button = button
 
 
-    def click(self, current_state: list, toggle: bool) -> list:
+    def click(self, current_state: MachineState, toggle: bool) -> MachineState:
         if toggle:
-            return np.array(current_state) ^ np.array(self._button)
-        return np.array(current_state) + np.array(self._button)
+            return np.array(np.array(current_state, dtype='bool') ^ np.array(self._button, dtype='bool'), dtype='int')
+        return np.array(current_state, dtype='int') + np.array(self._button, dtype='int')
 
 
 class Factory:
-    
-    def __init__(self, raw: str):
+
+    def __init__(self, raw: list[str]):
         self.machines = [Machine(m) for m in raw]
 
 
